@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { productAPI, cartAPI } from '../services/api';
 
@@ -9,12 +9,7 @@ function Home({ setCartCount }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('');
 
-  useEffect(() => {
-    fetchProducts();
-    updateCartCount();
-  }, [searchTerm, category]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const params = {};
@@ -29,9 +24,9 @@ function Home({ setCartCount }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, category]);
 
-  const updateCartCount = async () => {
+  const updateCartCount = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       if (token) {
@@ -41,7 +36,12 @@ function Home({ setCartCount }) {
     } catch (err) {
       // Cart API call may fail if user not logged in
     }
-  };
+  }, [setCartCount]);
+
+  useEffect(() => {
+    fetchProducts();
+    updateCartCount();
+  }, [fetchProducts, updateCartCount]);
 
   const handleAddToCart = async (productId) => {
     try {

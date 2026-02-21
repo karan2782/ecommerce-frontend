@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cartAPI } from '../services/api';
 
@@ -8,11 +8,7 @@ function Cart({ setCartCount }) {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchCart();
-  }, []);
-
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     try {
       setLoading(true);
       const response = await cartAPI.getCart();
@@ -24,7 +20,11 @@ function Cart({ setCartCount }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setCartCount]);
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   const handleRemoveItem = async (productId) => {
     try {

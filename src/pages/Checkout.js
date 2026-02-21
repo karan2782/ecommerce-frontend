@@ -78,8 +78,8 @@ function Checkout() {
       setPaymentProcessing(true);
       setError('');
 
-      // Create payment intent
-      const intentResponse = await orderAPI.createPaymentIntent({ orderId });
+      // Create payment intent (required before confirmPayment)
+      await orderAPI.createPaymentIntent({ orderId });
 
       // Confirm payment
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment({

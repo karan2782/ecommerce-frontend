@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 
 function Profile({ setUser }) {
-  const navigate = useNavigate();
   const [profile, setProfile] = useState({
     name: '',
     email: '',
