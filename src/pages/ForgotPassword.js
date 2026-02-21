@@ -28,7 +28,7 @@ function ForgotPassword() {
       }, 3000);
       
     } catch (err) {
-      setError(err.response?.data?.message || 'Error sending reset email');
+      setError(err.response?.data?.message || 'Error sending password reset email');
     } finally {
       setLoading(false);
     }
