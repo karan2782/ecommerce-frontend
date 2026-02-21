@@ -69,6 +69,12 @@ function Login({ setUser }) {
       <p style={{ marginTop: '1rem', textAlign: 'center' }}>
         Don't have an account? <Link to="/register">Register here</Link>
       </p>
+      
+      <p style={{ textAlign: 'center' }}>
+        <Link to="/forgot-password" style={{ color: '#007bff' }}>
+          Forgot your password?
+        </Link>
+      </p>
     </div>
   );
 }

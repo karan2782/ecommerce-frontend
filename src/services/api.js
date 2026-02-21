@@ -25,7 +25,9 @@ export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
   getProfile: () => api.get('/auth/profile'),
-  updateProfile: (data) => api.put('/auth/profile', data)
+  updateProfile: (data) => api.put('/auth/profile', data),
+  forgotPassword: (data) => api.post('/forgot-password', data),
+  resetPassword: (token, data) => api.post(`/reset-password/${token}`, data)
 };
 
 // Product APIs
