@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { cartAPI, orderAPI } from '../services/api';
 
 function Checkout() {
-  const stripe = useStripe();
-  const elements = useElements();
   const navigate = useNavigate();
 
   const [cart, setCart] = useState(null);
@@ -18,8 +15,6 @@ function Checkout() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [orderId, setOrderId] = useState(null);
-  const [paymentProcessing, setPaymentProcessing] = useState(false);
 
   useEffect(() => {
     fetchCart();
@@ -42,7 +37,9 @@ function Checkout() {
     }));
   };
 
-  const handleCreateOrder = async () => {
+  const handlePlaceOrder = async (e) => {
+    e.preventDefault();
+    
     try {
       setLoading(true);
       setError('');
@@ -54,59 +51,18 @@ function Checkout() {
         return;
       }
 
-      const response = await orderAPI.createOrder({ shippingAddress });
-      setOrderId(response.data.order._id);
+      // Create COD order
+      await orderAPI.createOrder({ 
+        shippingAddress, 
+        paymentMethod: 'cod' 
+      });
+      
+      alert('Order placed successfully! You will pay cash on delivery.');
+      navigate('/orders');
     } catch (err) {
       setError(err.response?.data?.message || 'Error creating order');
-      setLoading(false);
-    }
-  };
-
-  const handlePayment = async (e) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
-    if (!orderId) {
-      setError('Please create order first');
-      return;
-    }
-
-    try {
-      setPaymentProcessing(true);
-      setError('');
-
-      // Create payment intent (required before confirmPayment)
-      await orderAPI.createPaymentIntent({ orderId });
-
-      // Confirm payment
-      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: window.location.origin + '/orders'
-        },
-        redirect: 'if_required'
-      });
-
-      if (stripeError) {
-        setError(stripeError.message);
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Update order payment status
-        await orderAPI.updatePaymentStatus({
-          orderId,
-          paymentStatus: 'completed',
-          transactionId: paymentIntent.id
-        });
-
-        alert('Payment successful!');
-        navigate('/orders');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Payment error');
     } finally {
-      setPaymentProcessing(false);
+      setLoading(false);
     }
   };
 
@@ -131,7 +87,7 @@ function Checkout() {
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
         <div>
           <h2>Shipping Address</h2>
-          <form onSubmit={(e) => { e.preventDefault(); handleCreateOrder(); }}>
+          <form onSubmit={handlePlaceOrder}>
             <div className="form-group">
               <label>Street Address</label>
               <input
@@ -187,31 +143,35 @@ function Checkout() {
               </div>
             </div>
 
-            {!orderId ? (
-              <button type="submit" className="btn" style={{ width: '100%' }} disabled={loading}>
-                {loading ? 'Creating Order...' : 'Create Order'}
-              </button>
-            ) : (
-              <div className="success-message">Order created successfully! Proceed to payment.</div>
-            )}
-          </form>
-
-          {orderId && (
-            <div className="payment-section">
-              <h2>Payment Details</h2>
-              <form onSubmit={handlePayment}>
-                <PaymentElement />
-                <button
-                  type="submit"
-                  className="btn"
-                  style={{ width: '100%', marginTop: '1rem' }}
-                  disabled={!stripe || paymentProcessing}
-                >
-                  {paymentProcessing ? 'Processing...' : 'Complete Payment'}
-                </button>
-              </form>
+            <div className="form-group">
+              <label>Payment Method</label>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: '1rem', 
+                backgroundColor: '#f0f8ff', 
+                borderRadius: '4px',
+                border: '2px solid #007bff'
+              }}>
+                <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>💵</span>
+                <div>
+                  <strong>Cash on Delivery (COD)</strong>
+                  <div style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.25rem' }}>
+                    Pay cash when your order arrives. No additional fees.
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
+
+            <button 
+              type="submit" 
+              className="btn" 
+              style={{ width: '100%' }} 
+              disabled={loading}
+            >
+              {loading ? 'Placing Order...' : 'Place Order (COD)'}
+            </button>
+          </form>
         </div>
 
         <div>

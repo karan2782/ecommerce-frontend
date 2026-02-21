@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
 
 // Pages
 import Home from './pages/Home';
@@ -19,8 +17,6 @@ import Footer from './components/Footer';
 import PrivateRoute from './components/PrivateRoute';
 
 import './App.css';
-
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
 function App() {
   const [user, setUser] = useState(null);
@@ -42,34 +38,32 @@ function App() {
 
   return (
     <Router>
-      <Elements stripe={stripePromise}>
-        <Header user={user} onLogout={handleLogout} cartCount={cartCount} />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Home setCartCount={setCartCount} />} />
-            <Route path="/login" element={<Login setUser={setUser} />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route
-              path="/cart"
-              element={<PrivateRoute user={user}><Cart setCartCount={setCartCount} /></PrivateRoute>}
-            />
-            <Route
-              path="/checkout"
-              element={<PrivateRoute user={user}><Checkout /></PrivateRoute>}
-            />
-            <Route
-              path="/orders"
-              element={<PrivateRoute user={user}><Orders /></PrivateRoute>}
-            />
-            <Route
-              path="/profile"
-              element={<PrivateRoute user={user}><Profile setUser={setUser} /></PrivateRoute>}
-            />
-          </Routes>
-        </main>
-        <Footer />
-      </Elements>
+      <Header user={user} onLogout={handleLogout} cartCount={cartCount} />
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Home setCartCount={setCartCount} />} />
+          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route
+            path="/cart"
+            element={<PrivateRoute user={user}><Cart setCartCount={setCartCount} /></PrivateRoute>}
+          />
+          <Route
+            path="/checkout"
+            element={<PrivateRoute user={user}><Checkout /></PrivateRoute>}
+          />
+          <Route
+            path="/orders"
+            element={<PrivateRoute user={user}><Orders /></PrivateRoute>}
+          />
+          <Route
+            path="/profile"
+            element={<PrivateRoute user={user}><Profile setUser={setUser} /></PrivateRoute>}
+          />
+        </Routes>
+      </main>
+      <Footer />
     </Router>
   );
 }
