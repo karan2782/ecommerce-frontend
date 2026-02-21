@@ -26,7 +26,7 @@ export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   getProfile: () => api.get('/auth/profile'),
   updateProfile: (data) => api.put('/auth/profile', data),
-  forgotPassword: (data) => api.post('/forgot-password', data, { timeout: 25000 }),
+  forgotPassword: (data) => api.post('/forgot-password', data, { timeout: 60000 }),
   resetPassword: (token, data) => api.post(`/reset-password/${token}`, data)
 };
 
