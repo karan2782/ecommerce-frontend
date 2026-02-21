@@ -28,7 +28,16 @@ function ForgotPassword() {
       }, 3000);
       
     } catch (err) {
-      setError(err.response?.data?.message || 'Error sending password reset email');
+      // Prefer server error message (e.g. 500 with JSON body)
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.code === 'ECONNABORTED' || err.message?.toLowerCase().includes('timeout')) {
+        setError('Request timed out. The server may be starting up. Please try again.');
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError('Error sending password reset email. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
